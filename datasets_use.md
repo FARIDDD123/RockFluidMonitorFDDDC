@@ -6,6 +6,8 @@
 | `drilling_sensor_data_1m.csv` | CSV | 96MB | [Download from Google Drive](https://drive.google.com/file/d/1wvTqjpmhjLuOepNzxOX9VyNMOxwEFt0B/view?usp=drive_link) | Excel, LibreOffice, Notepad++ |
 | `merged_10m_dataset.parquet` | Parquet | 663MB | [Download from Google Drive](https://drive.google.com/file/d/1--OvgMkTGYsZOGbGarp_PANcyDGDHfHw/view?usp=drive_link) | Online tools or Python/Pandas |
 | `balanced_drilling_dataset.parquet` | Parquet | 1.77GB | [Download from Google Drive](https://drive.google.com/file/d/1IOtWthS4YkGoTj-ytF1ZsgGIlMeJof_R/view?usp=drive_link) | Online tools or Python/Pandas |
+| `ROP_data.csv` | CSV | 614KB | [Download from Google Drive](https://drive.google.com/file/d/1LSyvWoXo1YBWiazjmwMF7NOU4ajRmg7k/view?usp=drive_link) | Excel, LibreOffice, Notepad++ |
+| `16A(78)-32_time_data_10s_intervals_simplified.csv` | CSV | 52.2MB | [Download from Google Drive](https://drive.google.com/file/d/1ooxMee6LruQNcCCvyKz3gg0kIV0-2EI-/view?usp=drive_link) | Excel, LibreOffice, Notepad++ |
 
 ## 🛠 How to Use the Datasets
 
