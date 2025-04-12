@@ -9,6 +9,7 @@
 | `ROP_data.csv` | CSV | 614KB | [Download from Google Drive](https://drive.google.com/file/d/1LSyvWoXo1YBWiazjmwMF7NOU4ajRmg7k/view?usp=drive_link) | Excel, LibreOffice, Notepad++ |
 | `16A(78)-32_time_data_10s_intervals_simplified.csv` | CSV | 52.2MB | [Download from Google Drive](https://drive.google.com/file/d/1ooxMee6LruQNcCCvyKz3gg0kIV0-2EI-/view?usp=drive_link) | Excel, LibreOffice, Notepad++ |
 | `DRILL_Tripping_Circulation_Data_All.parquet` | Parquet | 19.6MB | [Download from Google Drive](https://drive.google.com/file/d/1ZPLPAeUEf5gHJ6s5h8ieZaQHWROhxR0t/view?usp=drive_link) | Online tools or Python/Pandas |
+| `LWD_logs.parquet` | Parquet | 109MB | [Download from Google Drive](https://drive.google.com/file/d/1ITLy2wHAz-ZewVQamrwj2MSJ3iCxrgK3/view?usp=drive_link) | Online tools or Python/Pandas |
 
 ## 🛠 How to Use the Datasets
 
