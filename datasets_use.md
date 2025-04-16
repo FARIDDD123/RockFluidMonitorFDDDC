@@ -11,6 +11,8 @@
 | `DRILL_Tripping_Circulation_Data_All.parquet` | Parquet | 19.6MB | [Download from Google Drive](https://drive.google.com/file/d/1ZPLPAeUEf5gHJ6s5h8ieZaQHWROhxR0t/view?usp=drive_link) | Online tools or Python/Pandas |
 | `LWD_logs.parquet` | Parquet | 109MB | [Download from Google Drive](https://drive.google.com/file/d/1ITLy2wHAz-ZewVQamrwj2MSJ3iCxrgK3/view?usp=drive_link) | Online tools or Python/Pandas |
 | `LWD_DRILL_data.parquet` | Parquet | 4.3MB | [Download from Google Drive](https://drive.google.com/file/d/1S5bogaZQeLuHdM13U-hhnyC60Cf5mHIC/view?usp=drive_link) | Online tools or Python/Pandas |
+| `DRILL_LWD_MWD_Data.parquet` | Parquet | 3MB | [Download from Google Drive](https://drive.google.com/file/d/13TO0IDGZ6PWi4eyMpn3dPDmfQXHTcD6l/view?usp=drive_link) | Online tools or Python/Pandas |
+| `DRILL_LWD_Sensor_Data.parquet` | Parquet | 3MB | [Download from Google Drive](https://drive.google.com/file/d/1V8LKcmAMDApcP1FjBjKi96gO_UsQ3fje/view?usp=drive_link) | Online tools or Python/Pandas |
 ## 🛠 How to Use the Datasets
 
 ### For CSV File:
