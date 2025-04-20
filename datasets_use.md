@@ -15,6 +15,9 @@
 | `DRILL_LWD_Sensor_Data.parquet` | Parquet | 3MB | [Download from Google Drive](https://drive.google.com/file/d/1V8LKcmAMDApcP1FjBjKi96gO_UsQ3fje/view?usp=drive_link) | Online tools or Python/Pandas |
 | `DrillMech__LWD/MWD_Time_Based_R02_180-2221m_MD.csv` | CSV | 12MB | [Download from Google Drive](https://drive.google.com/file/d/1UDMVufdhoOvwWAeH7oHqDKaza5oX8X7Q/view?usp=drive_link) | Excel, LibreOffice, Notepad++ |
 | `DrillingMechanics_LWD/MWD_Depth_Based_146-3285m_MD.csv` | CSV | 4.3MB | [Download from Google Drive](https://drive.google.com/file/d/1v9hVIzINqVMrqo4zN29f6G26jMqG9SjN/view?usp=drive_link) | Excel, LibreOffice, Notepad++ |
+| `UniversityofUtah_CBL_.parquet` | Parquet | 2MB | [Download from Google Drive](https://drive.google.com/file/d/1kyEVpcYQt095fLHyaA0snyW7PdPkE3Mc/view?usp=drive_link) | Online tools or Python/Pandas |
+| `MWD_DRILL_Tripping_Circulation_Data.parquet` | Parquet | 20MB | [Download from Google Drive](https://drive.google.com/file/d/1FiAjLpHpS4gZH6gv1lBVQM5NWC4ps4op/view?usp=drive_link) | Online tools or Python/Pandas |
+
 
 ## 🛠 How to Use the Datasets
 
