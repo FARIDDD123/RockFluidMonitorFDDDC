@@ -128,6 +128,6 @@ well_id, lat, lon, datetime, depth, mud_type, rpm, spp, flow_rate, viscosity, te
 
 - اطلاعات تماس برای همکاری‌های میدانی یا توسعه:
   ```
-  📧 info@fdms.ai
-  ☎️ +98-21-XXXXXXX
+  📧 email
+  ☎️ Number
   ```
