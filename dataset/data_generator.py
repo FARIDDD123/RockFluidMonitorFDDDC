@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import os
 
 np.random.seed(42)
 
@@ -31,8 +32,6 @@ numeric_cols = [
     "Young_Modulus_GPa", "Poisson_Ratio", "Brittleness_Index"
 ]
 
-dfs = []
-
 def fluid_loss_risk(row):
     if row['Mud_Weight_ppg'] > row['Fracture_Gradient_ppg']:
         return 'High'
@@ -52,30 +51,39 @@ def reactivity_score(row):
     else:
         return np.random.uniform(0.0, 0.3)
 
-for info in well_info:
+output_dir = "fdms_well_datasets"
+os.makedirs(output_dir, exist_ok=True)
+
+for i, info in enumerate(well_info):
+    print(f"⏳ در حال تولید داده برای چاه {info['WELL_ID']} ...")
+
+    # ایجاد پارامترهای منحصر به فرد با اندیس i
+    shift = i * 0.1
+    scale = 1 + (i % 5) * 0.05
+
     df = pd.DataFrame({
-        "Depth_m": np.random.uniform(1000, 6000, num_rows_per_well),
-        "ROP_mph": np.random.uniform(5, 50, num_rows_per_well),
-        "WOB_kgf": np.random.uniform(5000, 30000, num_rows_per_well),
-        "Torque_Nm": np.random.uniform(200, 2000, num_rows_per_well),
-        "Pump_Pressure_psi": np.random.uniform(1000, 6000, num_rows_per_well),
-        "Mud_FlowRate_LPM": np.random.uniform(100, 800, num_rows_per_well),
-        "MWD_Vibration_g": np.random.uniform(0.1, 3.0, num_rows_per_well),
+        "Depth_m": np.random.normal(3000 + shift*500, 800 * scale, num_rows_per_well).clip(1000, 6000),
+        "ROP_mph": np.random.normal(20 + shift*2, 8 * scale, num_rows_per_well).clip(5, 50),
+        "WOB_kgf": np.random.normal(15000 + shift*1000, 5000 * scale, num_rows_per_well).clip(5000, 30000),
+        "Torque_Nm": np.random.normal(1000 + shift*50, 400 * scale, num_rows_per_well).clip(200, 2000),
+        "Pump_Pressure_psi": np.random.normal(3000 + shift*500, 1000 * scale, num_rows_per_well).clip(1000, 6000),
+        "Mud_FlowRate_LPM": np.random.uniform(100 + shift*20, 800 + shift*30, num_rows_per_well),
+        "MWD_Vibration_g": np.random.uniform(0.1, 3.0 + shift, num_rows_per_well),
         "Bit_Type": np.random.choice(bit_types, num_rows_per_well),
-        "Mud_Weight_ppg": np.random.uniform(8.5, 15.0, num_rows_per_well),
-        "Viscosity_cP": np.random.uniform(30, 120, num_rows_per_well),
-        "Plastic_Viscosity": np.random.uniform(10, 50, num_rows_per_well),
-        "Yield_Point": np.random.uniform(5, 40, num_rows_per_well),
-        "pH_Level": np.random.uniform(6.5, 11.0, num_rows_per_well),
+        "Mud_Weight_ppg": np.random.normal(11 + shift, 1.5 * scale, num_rows_per_well).clip(8.5, 15),
+        "Viscosity_cP": np.random.normal(70 + shift*5, 20 * scale, num_rows_per_well).clip(30, 120),
+        "Plastic_Viscosity": np.random.normal(30 + shift*2, 8 * scale, num_rows_per_well).clip(10, 50),
+        "Yield_Point": np.random.normal(20 + shift*2, 6 * scale, num_rows_per_well).clip(5, 40),
+        "pH_Level": np.random.normal(8.5, 1.2 * scale, num_rows_per_well).clip(6.5, 11),
         "Solid_Content_%": np.random.uniform(1, 20, num_rows_per_well),
-        "Chloride_Concentration_mgL": np.random.uniform(100, 150000, num_rows_per_well),
+        "Chloride_Concentration_mgL": np.random.normal(50000 + shift*5000, 20000 * scale, num_rows_per_well).clip(100, 150000),
         "Oil_Water_Ratio": np.random.uniform(10, 90, num_rows_per_well),
         "Emulsion_Stability": np.random.uniform(30, 100, num_rows_per_well),
         "Formation_Type": np.random.choice(formation_types, num_rows_per_well),
-        "Pore_Pressure_psi": np.random.uniform(3000, 15000, num_rows_per_well),
-        "Fracture_Gradient_ppg": np.random.uniform(13, 18, num_rows_per_well),
-        "Stress_Tensor_MPa": np.random.uniform(10, 80, num_rows_per_well),
-        "Young_Modulus_GPa": np.random.uniform(5, 70, num_rows_per_well),
+        "Pore_Pressure_psi": np.random.normal(8000 + shift*500, 2000 * scale, num_rows_per_well).clip(3000, 15000),
+        "Fracture_Gradient_ppg": np.random.normal(15 + shift*0.2, 1.5 * scale, num_rows_per_well).clip(13, 18),
+        "Stress_Tensor_MPa": np.random.normal(40 + shift*2, 15 * scale, num_rows_per_well).clip(10, 80),
+        "Young_Modulus_GPa": np.random.normal(30 + shift*3, 10 * scale, num_rows_per_well).clip(5, 70),
         "Poisson_Ratio": np.random.uniform(0.2, 0.35, num_rows_per_well),
         "Brittleness_Index": np.random.uniform(0, 1, num_rows_per_well),
         "Shale_Reactiveness": np.random.choice(shale_reactivity, num_rows_per_well),
@@ -115,12 +123,9 @@ for info in well_info:
     cols = ['WELL_ID', 'LAT', 'LONG'] + [col for col in df.columns if col not in ['WELL_ID', 'LAT', 'LONG']]
     df = df[cols]
 
-    dfs.append(df)
+    # ذخیره‌ی دیتاست برای هر چاه
+    filename = f"FDMS_well_{info['WELL_ID']}.parquet"
+    filepath = os.path.join(output_dir, filename)
+    df.to_parquet(filepath, index=False)
 
-final_df = pd.concat(dfs, ignore_index=True)
-
-# ذخیره
-output_path = "FDMS_synthetic_dataset_10M.parquet"
-final_df.to_parquet(output_path, index=False)
-
-print(f"✅ فایل نهایی با ستون‌های موقعیت در ابتدا ذخیره شد: {output_path}")
+    print(f"✅ دیتاست ذخیره شد: {filepath}")
