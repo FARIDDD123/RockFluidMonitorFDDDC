@@ -6,18 +6,18 @@ from sklearn.preprocessing import MinMaxScaler
 from scipy import stats
 from pathlib import Path
 
-# مسیر پوشه ورودی و خروجی‌ها
+# مسیر پوشه‌ها
 DATA_DIR = "dataset/fdms_well_datasets"
 PROCESSED_DIR = "dataset/processed"
 OUTLIER_DIR = "dataset/outliers"
 MEAN_DIR = "dataset/means"
 
-# ساخت مسیرهای خروجی در صورت نیاز
+# ساخت مسیرها
 Path(PROCESSED_DIR).mkdir(parents=True, exist_ok=True)
 Path(OUTLIER_DIR).mkdir(parents=True, exist_ok=True)
 Path(MEAN_DIR).mkdir(parents=True, exist_ok=True)
 
-# پردازش فایل‌های .parquet
+# پردازش هر فایل
 for filename in os.listdir(DATA_DIR):
     if filename.endswith(".parquet"):
         well_id = filename.split("_")[-1].replace(".parquet", "")
@@ -32,17 +32,18 @@ for filename in os.listdir(DATA_DIR):
         print(f"📊 Initial shape: {df.shape}")
         print("🔍 Missing values:\n", df.isna().sum())
 
-        # حذف مقادیر گمشده
+        # حذف NaN
         df = df.dropna()
 
-        # انتخاب ویژگی‌های عددی (قبل از نرمال‌سازی)
+        # انتخاب ویژگی‌های عددی
         numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
         numeric_cols = [col for col in numeric_cols if col not in ['WELL_ID', 'LAT', 'LONG']]
 
-        # ذخیره آمار اولیه قبل از نرمال‌سازی برای برگرداندن مقادیر اصلی در آینده
-        original_means = df[numeric_cols].mean().to_dict()
-        original_stds = df[numeric_cols].std().to_dict()
+        # استخراج min و max
+        original_min = df[numeric_cols].min().to_dict()
+        original_max = df[numeric_cols].max().to_dict()
 
+        # نرمال‌سازی
         scaler = MinMaxScaler()
         df[numeric_cols] = scaler.fit_transform(df[numeric_cols])
 
@@ -50,7 +51,7 @@ for filename in os.listdir(DATA_DIR):
         categorical_cols = df.select_dtypes(include=['object']).columns.tolist()
         df = pd.get_dummies(df, columns=categorical_cols)
 
-        # شناسایی داده‌های پرت (Z-Score + IQR)
+        # شناسایی داده‌های پرت
         z_scores = np.abs(stats.zscore(df[numeric_cols]))
         outliers_z = (z_scores > 3).any(axis=1)
 
@@ -70,11 +71,12 @@ for filename in os.listdir(DATA_DIR):
         df_clean = df[~outliers]
         df_clean.to_parquet(processed_path, index=False)
 
-        # ذخیره میانگین و انحراف معیار اولیه برای برگرداندن مقادیر استاندارد شده
+        # ذخیره آماره‌ها برای برگرداندن نرمال‌سازی
         stats_to_save = {
             "WELL_ID": int(well_id),
-            "mean": original_means,
-            "std": original_stds
+            "scaling_method": "minmax",
+            "min": original_min,
+            "max": original_max
         }
 
         with open(mean_json_path, 'w') as f:
