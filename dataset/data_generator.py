@@ -4,7 +4,7 @@ import os
 
 np.random.seed(42)
 
-num_rows_per_well = 1_000_000
+num_rows_per_well = 15_556_000
 
 well_info = [
     {"WELL_ID": 50, "LAT": 32.26, "LONG": -94.86},
