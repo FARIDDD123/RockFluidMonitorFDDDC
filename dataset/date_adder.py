@@ -1,31 +1,28 @@
 import pandas as pd
-import numpy as np
 import os
-from datetime import datetime, timedelta
 
 input_dir = "fdms_well_datasets"
-
-def generate_dates(num_rows):
-    base_date = datetime(2020, 1, 1)
-    spud_dates = [base_date + timedelta(days=int(np.random.uniform(0, 365*3))) for _ in range(num_rows)]
-    completion_dates = [spud + timedelta(days=int(np.random.uniform(5, 90))) for spud in spud_dates]
-    return spud_dates, completion_dates
 
 for filename in os.listdir(input_dir):
     if filename.endswith(".parquet"):
         filepath = os.path.join(input_dir, filename)
-        print(f"📂 در حال پردازش فایل: {filename}")
+        print(f"⏳ در حال بارگذاری و افزودن timestamp به: {filename}")
 
         df = pd.read_parquet(filepath)
 
-        spud_dates, completion_dates = generate_dates(len(df))
-        df["spud_date"] = spud_dates
-        df["completion_date"] = completion_dates
+        # ایجاد ستون timestamp با فاصله 1 ثانیه بین هر ردیف
+        df = df.reset_index(drop=True)
+        df['timestamp'] = pd.to_datetime('2023-01-01 00:00:00') + pd.to_timedelta(df.index, unit='s')
 
-        # مرتب‌سازی ستون‌ها: WELL_ID → spud_date → completion_date → باقی ستون‌ها
-        first_cols = ["WELL_ID", "spud_date", "completion_date"]
-        remaining_cols = [col for col in df.columns if col not in first_cols]
-        df = df[first_cols + remaining_cols]
+        # جابجایی ستون timestamp به جایگاه دوم (بعد از WELL_ID)
+        cols = df.columns.tolist()
+        cols.remove('timestamp')
+        well_id_index = cols.index('WELL_ID')
+        # ستون timestamp را بعد از WELL_ID اضافه می‌کنیم
+        new_cols = cols[:well_id_index + 1] + ['timestamp'] + cols[well_id_index + 1:]
+        df = df[new_cols]
 
+        # ذخیره مجدد با ستون جدید timestamp
         df.to_parquet(filepath, index=False)
-        print(f"✅ ستون‌ها افزوده و فایل ذخیره شد: {filename}")
+
+        print(f"✅ ستون timestamp اضافه و فایل ذخیره شد: {filename}")
