@@ -4,7 +4,7 @@ import os
 
 np.random.seed(42)
 
-num_rows_per_well = 15_556_000
+num_rows_per_well = 15_552_000
 
 well_info = [
     {"WELL_ID": 50, "LAT": 32.26, "LONG": -94.86},
@@ -57,7 +57,6 @@ os.makedirs(output_dir, exist_ok=True)
 for i, info in enumerate(well_info):
     print(f"⏳ در حال تولید داده برای چاه {info['WELL_ID']} ...")
 
-    # ایجاد پارامترهای منحصر به فرد با اندیس i
     shift = i * 0.1
     scale = 1 + (i % 5) * 0.05
 
@@ -119,9 +118,19 @@ for i, info in enumerate(well_info):
     df["LAT"] = info["LAT"]
     df["LONG"] = info["LONG"]
 
-    # جابجایی ستون‌ها: WELL_ID, LAT, LONG ابتدا
-    cols = ['WELL_ID', 'LAT', 'LONG'] + [col for col in df.columns if col not in ['WELL_ID', 'LAT', 'LONG']]
-    df = df[cols]
+    # اضافه کردن ستون timestamp با فواصل 1 ثانیه از تاریخ اولیه
+    start_time = pd.to_datetime('2023-01-01 00:00:00')
+    df = df.reset_index(drop=True)
+    df['timestamp'] = start_time + pd.to_timedelta(df.index, unit='s')
+
+    # مرتب سازی ستون‌ها به نحوی که timestamp بعد از WELL_ID بیاید و LAT و LONG هم بمانند
+    cols = df.columns.tolist()
+    # حذف ستون timestamp از لیست فعلی
+    cols.remove('timestamp')
+    # قرار دادن timestamp بعد از WELL_ID
+    well_id_index = cols.index('WELL_ID')
+    new_cols = cols[:well_id_index + 1] + ['timestamp'] + cols[well_id_index + 1:]
+    df = df[new_cols]
 
     # ذخیره‌ی دیتاست برای هر چاه
     filename = f"FDMS_well_{info['WELL_ID']}.parquet"
