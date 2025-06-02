@@ -1,3 +1,9 @@
 pandas
 numpy
 scipy
+pyarrow
+fastparquet
+shap
+onnx
+onnxruntime
+matplotlib

@@ -185,7 +185,7 @@ def run_shap(model, X_train, X_test, features, device):
 def export_model_onnx(model, input_dim, device, output_path):
     print("💾 ذخیره مدل در فرمت ONNX...")
     dummy_input = torch.randn(1, input_dim, dtype=torch.float32).to(device)
-    torch.onnx.export(model, dummy_input, model_output_path, input_names=["input"], output_names=["output"], opset_version=11)
+    torch.onnx.export(model, dummy_input, MODEL_OUTPUT_PATH , input_names=["input"], output_names=["output"], opset_version=11)
     print(f"✅ مدل ذخیره شد: {output_path}")
 
 # ------------------ [اجرای همه چیز] ------------------

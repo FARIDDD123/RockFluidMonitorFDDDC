@@ -257,6 +257,26 @@ def save_model(model, X_sample):
     joblib.dump(model.calibrator, 'rf_calibrator.pkl')
     
     print("✅ Models saved successfully")
+def export_gru_to_onnx(model, input_sample, output_path):
+    model.gru_model.eval()
+    input_tensor = torch.tensor(input_sample, dtype=torch.float32).to(device)
+
+    # اضافه کردن batch و sequence dimension (برای GRU)
+    input_tensor = input_tensor.unsqueeze(1)
+
+    torch.onnx.export(
+        model.gru_model,                     # مدل PyTorch
+        input_tensor,                        # ورودی نمونه‌ای
+        output_path,                         # مسیر ذخیره‌سازی
+        export_params=True,
+        opset_version=11,                    # نسخه اپ‌ست سازگار
+        do_constant_folding=True,
+        input_names=['input'],
+        output_names=['output'],
+        dynamic_axes={'input': {0: 'batch_size'}, 'output': {0: 'batch_size'}}
+    )
+    print(f"✅ GRU model exported to ONNX at: {output_path}")
+
 
 # 🚀 اجرای کامل
 def run_pipeline():
@@ -318,6 +338,7 @@ def run_pipeline():
     
     # ذخیره مدل
     save_model(model, X_test[:1])
+    export_gru_to_onnx(model, X_test[:1], model_output_path)
 
 if __name__ == "__main__":
     run_pipeline()
