@@ -1,85 +1,110 @@
-import pandas as pd
-import numpy as np
 import os
-import json
-from sklearn.preprocessing import MinMaxScaler
+import dask.dataframe as dd
+import numpy as np
+from dask.distributed import Client
+from sklearn.preprocessing import StandardScaler
 from scipy import stats
+import json
 from pathlib import Path
 
-# مسیر پوشه‌ها
-DATA_DIR = "dataset/fdms_well_datasets"
-PROCESSED_DIR = "dataset/processed"
-OUTLIER_DIR = "dataset/outliers"
-MEAN_DIR = "dataset/means"
+def setup_directories():
+    """ایجاد پوشه‌های مورد نیاز"""
+    Path("datasets/processed").mkdir(exist_ok=True)
+    Path("datasets/outliers").mkdir(exist_ok=True)
+    Path("datasets/stats").mkdir(exist_ok=True)
 
-# ساخت مسیرها
-Path(PROCESSED_DIR).mkdir(parents=True, exist_ok=True)
-Path(OUTLIER_DIR).mkdir(parents=True, exist_ok=True)
-Path(MEAN_DIR).mkdir(parents=True, exist_ok=True)
-
-# پردازش هر فایل
-for filename in os.listdir(DATA_DIR):
-    if filename.endswith(".parquet"):
-        well_id = filename.split("_")[-1].replace(".parquet", "")
-        raw_path = os.path.join(DATA_DIR, filename)
-        processed_path = os.path.join(PROCESSED_DIR, f"cleaned_{well_id}.parquet")
-        outliers_path = os.path.join(OUTLIER_DIR, f"outliers_{well_id}.parquet")
-        mean_json_path = os.path.join(MEAN_DIR, f"mean_{well_id}.json")
-
-        print(f"\n📥 Loading data for well {well_id} from {raw_path}")
-        df = pd.read_parquet(raw_path)
-
-        print(f"📊 Initial shape: {df.shape}")
-        print("🔍 Missing values:\n", df.isna().sum())
-
-        # حذف NaN
-        df = df.dropna()
-
-        # انتخاب ویژگی‌های عددی
-        numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-        numeric_cols = [col for col in numeric_cols if col not in ['WELL_ID', 'LAT', 'LONG']]
-
-        # استخراج min و max
-        original_min = df[numeric_cols].min().to_dict()
-        original_max = df[numeric_cols].max().to_dict()
-
-        # نرمال‌سازی
-        scaler = MinMaxScaler()
-        df[numeric_cols] = scaler.fit_transform(df[numeric_cols])
-
-        # دسته‌بندی ویژگی‌های متنی
-        categorical_cols = df.select_dtypes(include=['object']).columns.tolist()
-        df = pd.get_dummies(df, columns=categorical_cols)
-
-        # شناسایی داده‌های پرت
-        z_scores = np.abs(stats.zscore(df[numeric_cols]))
-        outliers_z = (z_scores > 3).any(axis=1)
-
+def detect_outliers(df, method='iqr', threshold=3):
+    """
+    شناسایی outlierها با روش‌های مختلف
+    پارامترها:
+        method: 'iqr' یا 'zscore'
+        threshold: حد آستانه برای outlierها
+    """
+    numeric_cols = df.select_dtypes(include=[np.number]).columns
+    
+    if method == 'iqr':
         Q1 = df[numeric_cols].quantile(0.25)
         Q3 = df[numeric_cols].quantile(0.75)
         IQR = Q3 - Q1
-        outliers_iqr = ((df[numeric_cols] < (Q1 - 1.5 * IQR)) | (df[numeric_cols] > (Q3 + 1.5 * IQR))).any(axis=1)
+        outliers = ((df[numeric_cols] < (Q1 - threshold*IQR)) | 
+                    (df[numeric_cols] > (Q3 + threshold*IQR))).any(axis=1)
+    
+    elif method == 'zscore':
+        z_scores = stats.zscore(df[numeric_cols], nan_policy='omit')
+        outliers = (np.abs(z_scores) > threshold).any(axis=1)
+    
+    return outliers
 
-        outliers = outliers_z | outliers_iqr
-        print(f"🚨 Outliers detected: {outliers.sum()} rows")
-
-        # ذخیره داده‌های پرت
-        df_outliers = df[outliers]
-        df_outliers.to_parquet(outliers_path, index=False)
-
-        # ذخیره داده تمیز
-        df_clean = df[~outliers]
-        df_clean.to_parquet(processed_path, index=False)
-
-        # ذخیره آماره‌ها برای برگرداندن نرمال‌سازی
-        stats_to_save = {
-            "WELL_ID": int(well_id),
-            "scaling_method": "minmax",
-            "min": original_min,
-            "max": original_max
+def standardize_data(df, method='standard'):
+    """
+    استانداردسازی داده‌ها
+    پارامترها:
+        method: 'standard' (mean-std) یا 'minmax'
+    """
+    numeric_cols = df.select_dtypes(include=[np.number]).columns
+    
+    if method == 'standard':
+        scaler = StandardScaler()
+        df[numeric_cols] = scaler.fit_transform(df[numeric_cols])
+        stats = {
+            'method': 'standard',
+            'mean': df[numeric_cols].mean().to_dict(),
+            'std': df[numeric_cols].std().to_dict()
         }
+    elif method == 'minmax':
+        min_vals = df[numeric_cols].min()
+        max_vals = df[numeric_cols].max()
+        df[numeric_cols] = (df[numeric_cols] - min_vals) / (max_vals - min_vals)
+        stats = {
+            'method': 'minmax',
+            'min': min_vals.to_dict(),
+            'max': max_vals.to_dict()
+        }
+    
+    return df, stats
 
-        with open(mean_json_path, 'w') as f:
-            json.dump(stats_to_save, f, indent=4)
+def process_partition(df, outlier_method='iqr', standardization_method='standard'):
+    """پردازش هر پارتیشن داده"""
+    # 1. حذف مقادیر گم‌شده
+    df = df.dropna()
+    
+    # 2. شناسایی outlierها
+    outliers = detect_outliers(df, method=outlier_method)
+    
+    # 3. استانداردسازی داده‌ها
+    df_clean, scaling_stats = standardize_data(df[~outliers], method=standardization_method)
+    
+    return {
+        'clean': df_clean,
+        'outliers': df[outliers],
+        'stats': scaling_stats
+    }
 
-        print(f"✅ Preprocessing complete and stats saved → well {well_id}")
+def main():
+    setup_directories()
+    
+    with Client(n_workers=4, memory_limit='4GB') as client:
+        # خواندن داده‌ها
+        ddf = dd.read_parquet("datasets/*.parquet", chunksize=100000)
+        
+        # پردازش موازی
+        results = ddf.map_partitions(
+            process_partition,
+            outlier_method='zscore',  # یا 'iqr'
+            standardization_method='standard'  # یا 'minmax'
+        ).compute()
+        
+        # تجمیع نتایج
+        df_clean = dd.concat([r['clean'] for r in results])
+        df_outliers = dd.concat([r['outliers'] for r in results])
+        
+        # ذخیره‌سازی
+        df_clean.to_parquet("data/processed/", partition_on=['WELL_ID'])
+        df_outliers.to_parquet("data/outliers/")
+        
+        # ذخیره آماره‌های استانداردسازی
+        with open("data/stats/scaling_stats.json", "w") as f:
+            json.dump(results[0]['stats'], f)  # آماره‌های اولین پارتیشن به عنوان نمونه
+
+if __name__ == '__main__':
+    main()
