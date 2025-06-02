@@ -99,11 +99,11 @@ def main():
         df_outliers = dd.concat([r['outliers'] for r in results])
         
         # ذخیره‌سازی
-        df_clean.to_parquet("data/processed/", partition_on=['WELL_ID'])
-        df_outliers.to_parquet("data/outliers/")
+        df_clean.to_parquet("datasets/processed/", partition_on=['WELL_ID'])
+        df_outliers.to_parquet("datasets/outliers/")
         
         # ذخیره آماره‌های استانداردسازی
-        with open("data/stats/scaling_stats.json", "w") as f:
+        with open("datasets/stats/scaling_stats.json", "w") as f:
             json.dump(results[0]['stats'], f)  # آماره‌های اولین پارتیشن به عنوان نمونه
 
 if __name__ == '__main__':
