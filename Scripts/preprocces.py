@@ -89,7 +89,7 @@ def main():
     
     with Client(n_workers=4, memory_limit='4GB') as client:
         # خواندن داده‌ها
-        ddf = dd.read_parquet("datasets/*.parquet", chunksize=100000)
+        ddf = dd.read_parquet("datasets/synthetic_fdms_chunks/*.parquet", chunksize=100000)
         
         # پردازش موازی
         results = ddf.map_partitions(
