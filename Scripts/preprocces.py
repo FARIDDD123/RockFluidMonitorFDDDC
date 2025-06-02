@@ -11,6 +11,7 @@ def setup_directories():
     """ایجاد پوشه‌های مورد نیاز"""
     Path("datasets/processed").mkdir(exist_ok=True)
     Path("datasets/outliers").mkdir(exist_ok=True)
+    Path("datasets/missing").mkdir(exist_ok=True)  # پوشه جدید برای داده‌های گمشده
     Path("datasets/stats").mkdir(exist_ok=True)
 
 def detect_outliers(df, method='iqr', threshold=3):
@@ -65,8 +66,10 @@ def standardize_data(df, method='standard'):
 
 def process_partition(df, outlier_method='iqr', standardization_method='standard'):
     """پردازش هر پارتیشن داده"""
-    # 1. حذف مقادیر گم‌شده
-    df = df.dropna()
+    # 1. شناسایی و جداسازی داده‌های گمشده
+    missing_mask = df.isnull().any(axis=1)
+    df_missing = df[missing_mask]
+    df = df[~missing_mask]
     
     # 2. شناسایی outlierها
     outliers = detect_outliers(df, method=outlier_method)
@@ -77,6 +80,7 @@ def process_partition(df, outlier_method='iqr', standardization_method='standard
     return {
         'clean': df_clean,
         'outliers': df[outliers],
+        'missing': df_missing,
         'stats': scaling_stats
     }
 
@@ -97,10 +101,12 @@ def main():
         # تجمیع نتایج
         df_clean = dd.concat([r['clean'] for r in results])
         df_outliers = dd.concat([r['outliers'] for r in results])
+        df_missing = dd.concat([r['missing'] for r in results])  # داده‌های گمشده
         
         # ذخیره‌سازی
         df_clean.to_parquet("datasets/processed/", partition_on=['WELL_ID'])
         df_outliers.to_parquet("datasets/outliers/")
+        df_missing.to_parquet("datasets/missing/")  # ذخیره داده‌های گمشده
         
         # ذخیره آماره‌های استانداردسازی
         with open("datasets/stats/scaling_stats.json", "w") as f:
