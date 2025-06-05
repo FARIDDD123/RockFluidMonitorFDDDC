@@ -1,9 +1,11 @@
 import torch.nn as nn
 import torch 
 from sklearn.preprocessing import MinMaxScaler 
+import numpy as np
 class LSTM_with_Attention(nn.Module):
     def __init__(self,input_dim,hidden_dim,output_dim,dropout_rate,lstm_layers):
         super().__init__()
+        
         self.in_stack = nn.Sequential(
             nn.Linear(in_features=input_dim,out_features=hidden_dim),
             nn.LayerNorm(hidden_dim),
@@ -11,6 +13,8 @@ class LSTM_with_Attention(nn.Module):
         )
 
         self.lstm = nn.LSTM(input_size=hidden_dim,num_layers=lstm_layers,batch_first=True,hidden_size=hidden_dim,dropout=dropout_rate)
+        self.gru = nn.GRU(input_size=hidden_dim,num_layers=lstm_layers,batch_first=True,hidden_size=hidden_dim,dropout=dropout_rate)
+
 
         self.mid_stack = nn.Sequential(
             nn.LayerNorm(hidden_dim),
@@ -32,9 +36,9 @@ class LSTM_with_Attention(nn.Module):
         x = self.in_stack(x)
 
         x,_ = self.lstm(x)
-
+        
         x = self.mid_stack(x)
-
+        x,_ = self.gru(x)
         # attention mechanisms
         w = torch.softmax(self.att(x),dim=1)
         x = torch.sum(w * x,dim=1)
@@ -54,3 +58,16 @@ def min_max_scale_3d(x_train,x_test):
     scaled_train = scaler.fit_transform(reshaped_train)
     scaled_test = scaler.transform(reshaped_test)
     return scaled_train.reshape(train_shape),scaled_test.reshape(test_shape)
+
+
+
+
+def create_sequences(data, targets, lookback:int):
+    x_seq = []
+    y_seq = []
+    for i in range(len(data) - lookback):
+        data_seq = data.iloc[i:i + lookback]
+        target_seq = targets.iloc[i+lookback]
+        x_seq.append(data_seq)
+        y_seq.append(target_seq)
+    return torch.tensor(np.array(x_seq)).to(torch.float),torch.tensor(np.array(y_seq)).to(torch.long)
