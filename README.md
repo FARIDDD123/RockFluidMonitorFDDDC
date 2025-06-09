@@ -1,20 +1,21 @@
 # 🛢️ Software Requirements Specification (SRS)
 
-## 💡 سیستم پایش آسیب‌سازند در حفاری و سیمان‌کاری (FDMS)
+## 💡 Formation Damage Monitoring System (FDMS)
 
 ---
 
-## 1. معرفی
+## 1. Introduction
 
-### 1.1 هدف
-هدف این سند، تعریف نیازمندی‌های سیستم هوشمند FDMS است که وظیفه‌ی پایش بلادرنگ، شبیه‌سازی سه‌بعدی و پیش‌بینی آسیب‌های سازند را در عملیات حفاری و سیمان‌کاری برعهده دارد. این سیستم با استفاده از داده‌های MWD/LWD و یادگیری ماشین توسعه یافته است.
+### 1.1 Purpose
+The purpose of this document is to define the requirements for the intelligent FDMS system, which is responsible for real-time monitoring, 3D simulation, and prediction of formation damage during drilling and cementing operations. This system is developed using MWD/LWD data and machine learning.
 
-### 1.2 دامنه سیستم
-FDMS به عنوان یک سیستم یکپارچه شامل موتور تحلیل داده، مدل‌های یادگیری ماشین، موتور شبیه‌سازی سه‌بعدی و داشبورد مدیریتی تعاملی طراحی شده است. این سیستم با هدف پایش بلادرنگ، تحلیل پیش‌بینانه و بهینه‌سازی تصمیم‌گیری عملیاتی در فرآیندهای حفاری و سیمان‌کاری توسعه یافته و قابلیت استفاده در هر دو محیط Onshore و Offshore را دارا می‌باشد.
+### 1.2 System Scope
+FDMS is designed as an integrated system comprising a data analysis engine, machine learning models, a 3D simulation engine, and an interactive management dashboard. The system is intended for real-time monitoring, predictive analysis, and operational decision optimization in drilling and cementing processes and is applicable to both onshore and offshore environments.
 
-### 1.3 تعاریف و اختصارات
-| اصطلاح | توضیح |
-|--------|-------|
+### 1.3 Definitions and Acronyms
+
+| Term | Description |
+|------|-------------|
 | MWD | Measurement While Drilling |
 | LWD | Logging While Drilling |
 | ECD | Equivalent Circulating Density |
@@ -24,75 +25,75 @@ FDMS به عنوان یک سیستم یکپارچه شامل موتور تحلی
 
 ---
 
-## 2. شرح کلی
+## 2. Overall Description
 
-### 2.1 چشم‌انداز
-FDMS نقش مهمی در پیشگیری از آسیب‌های سازند دارد و می‌تواند با ارائه‌ی پیش‌بینی‌های بلادرنگ و شبیه‌سازی‌های تعاملی، تصمیم‌گیری اپراتورها را بهبود بخشد.
+### 2.1 Vision
+FDMS plays a critical role in preventing formation damage by providing real-time predictions and interactive simulations, enhancing operator decision-making.
 
-### 2.2 ویژگی‌های اصلی
-- ⏱️ پردازش بلادرنگ داده‌های حفاری (MWD/LWD)
-- 🤖 پیش‌بینی هوشمند تلفات سیال و امولسیون
-- 🖥️ شبیه‌سازی 3D سازند
-- 📊 داشبورد مدیریتی با هشدار هوشمند
+### 2.2 Key Features
+- ⏱️ Real-time processing of drilling data (MWD/LWD)
+- 🤖 Intelligent prediction of fluid loss and emulsion risk
+- 🖥️ 3D formation simulation
+- 📊 Management dashboard with smart alerts
 
-### 2.3 محدودیت‌ها
-- نیاز به کیفیت بالای داده‌های حفاری
-- وابستگی به GPU برای آموزش مدل‌ها
-- نیاز به پایدار بودن شبکه در سایت
-
----
-
-## 3. نیازمندی‌های عملکردی (FR)
-
-### 3.1 پیش‌بینی ریسک تلفات سیال
-- [FR-1.1] استفاده از مدل XGBoost برای پیش‌بینی ریسک
-- [FR-1.2] تحلیل اهمیت ویژگی‌ها با SHAP
-- [FR-1.3] نمایش گرافیکی نتایج در داشبورد
-
-### 3.2 تشخیص امولسیون حفاری
-- [FR-2.1] دریافت سری زمانی از ویسکوزیته، دما، نرخ برش
-- [FR-2.2] استفاده از LSTM برای تشخیص تشکیل امولسیون
-- [FR-2.3] هشدار بلادرنگ در صورت شناسایی خطر
-
-### 3.3 شبیه‌سازی سه‌بعدی سازند
-- [FR-3.1] نمایش سازند تحت تنش با Unity3D
-- [FR-3.2] امکان تعامل اپراتور با مدل بصری
-
-### 3.4 داشبورد مدیریتی
-- [FR-4.1] نمایش فشار، دما، سرعت چرخش، ECD
-- [FR-4.2] سیستم هشدار در صورت تجاوز از آستانه
-- [FR-4.3] پیشنهادات عملیاتی بر اساس تحلیل ML
+### 2.3 Constraints
+- Requires high-quality drilling data
+- Depends on GPU resources for model training
+- Requires stable site network connectivity
 
 ---
 
-## 4. نیازمندی‌های غیرعملکردی (NFR)
+## 3. Functional Requirements (FR)
 
-| کد | نیازمندی | توضیح |
-|-----|----------|--------|
-| NFR-1 | کارایی | پردازش داده حفاری با نرخ حداقل 1Hz |
-| NFR-2 | پایداری | ادامه عملکرد در صورت قطعی اتصال |
-| NFR-3 | توسعه‌پذیری | ماژولار بودن معماری ML و UI |
-| NFR-4 | امنیت | رمزنگاری تبادل داده و احراز هویت |
-| NFR-5 | نگهداری‌پذیری | مستندسازی کامل و تست‌پذیری |
+### 3.1 Fluid Loss Risk Prediction
+- [FR-1.1] Use of XGBoost model for risk prediction
+- [FR-1.2] Feature importance analysis with SHAP
+- [FR-1.3] Graphical display of results in dashboard
+
+### 3.2 Emulsion Detection in Drilling
+- [FR-2.1] Input time series: viscosity, temperature, shear rate
+- [FR-2.2] Use LSTM model to detect emulsion formation
+- [FR-2.3] Real-time alert upon detection
+
+### 3.3 3D Formation Simulation
+- [FR-3.1] Visualize stressed formation using Unity3D
+- [FR-3.2] Enable operator interaction with the 3D model
+
+### 3.4 Management Dashboard
+- [FR-4.1] Display pressure, temperature, RPM, ECD
+- [FR-4.2] Alert system for threshold violations
+- [FR-4.3] ML-based operational recommendations
 
 ---
 
-## 5. نیازمندی‌های داده
+## 4. Non-Functional Requirements (NFR)
 
-### 5.1 ساختار داده پیشنهادی (نمونه‌ای برای 10 چاه)
+| Code | Requirement | Description |
+|------|-------------|-------------|
+| NFR-1 | Performance | Process drilling data at a minimum rate of 1Hz |
+| NFR-2 | Reliability | Continue operating during temporary disconnections |
+| NFR-3 | Scalability | Modular architecture for ML and UI components |
+| NFR-4 | Security | Data exchange encryption and user authentication |
+| NFR-5 | Maintainability | Full documentation and testability support |
+
+---
+
+## 5. Data Requirements
+
+### 5.1 Suggested Data Structure (Sample for 10 wells)
 ```csv
 well_id, lat, lon, datetime, depth, mud_type, rpm, spp, flow_rate, viscosity, temperature, ecd, shale_index, bit_type, lithology, cuttings_concentration, ph, cl_concentration, oil_water_ratio, emulsion_detected, lost_circulation, casing_pressure, annular_pressure
 ```
 
-### 5.2 منابع داده
-- داده‌های میدانی واقعی از چاه‌های حفاری‌شده
-- داده‌های مصنوعی با الگوریتم‌های تولید سری زمانی (TimeGAN, SynthFlow)
+### 5.2 Data Sources
+- Real field data from drilled wells
+- Synthetic data generated via time-series algorithms (TimeGAN, SynthFlow)
 
 ---
 
-## 6. نمودارهای سطح بالا
+## 6. High-Level Diagrams
 
-### 6.1 معماری سیستم
+### 6.1 System Architecture
 ```
 [Data Acquisition] → [Processing Layer (Python/C++)]
                    → [ML Models: XGBoost, LSTM]
@@ -101,33 +102,33 @@ well_id, lat, lon, datetime, depth, mud_type, rpm, spp, flow_rate, viscosity, te
                    → [Frontend Dashboard: React + Plotly]
 ```
 
-### 6.2 دیاگرام تعامل کاربر
+### 6.2 User Interaction Diagram
 ```
 [User] ⇄ [Dashboard] ⇄ [Backend API] ⇄ [ML Engine / 3D Simulator / DB]
 ```
 
 ---
 
-## 7. پیوست‌ها
+## 7. Appendices
 
-- راهنمای نصب اولیه:
+- Initial Setup Guide:
   ```bash
   pip install -r requirements.txt
   uvicorn app.main:app --reload
   python train_fluid_loss_model.py
   ```
 
-- مسیر پوشه‌ها:
+- Folder Structure:
   ```
-  📁 data/ ← داده‌های حفاری
-  📁 models/ ← مدل‌های آموزش‌دیده
-  📁 simulation/ ← شبیه‌سازی Unity
-  📁 dashboard/ ← فرانت‌اند React و API
-  📁 notebooks/ ← تحلیل‌ها و آزمایش‌ها
+  📁 data/ ← Drilling data
+  📁 models/ ← Trained models
+  📁 simulation/ ← Unity simulations
+  📁 dashboard/ ← React frontend & API
+  📁 notebooks/ ← Analyses and experiments
   ```
 
-- اطلاعات تماس برای همکاری‌های میدانی یا توسعه:
+- Contact Information for Field Collaboration or Development:
   ```
   📧 email
-  ☎️ Number
+  ☎️ phone number
   ```
