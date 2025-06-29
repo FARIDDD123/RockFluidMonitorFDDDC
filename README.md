@@ -157,6 +157,6 @@ python train_predictive_models.py
 
 ### 8.3 Contact Information
 ```
-📧 your_email@example.com  
-☎️ +1-234-567-8900  
+📧  
+☎️ 
 ```
